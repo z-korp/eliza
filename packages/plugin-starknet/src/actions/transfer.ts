@@ -85,6 +85,7 @@ export default {
             state,
             template: transferTemplate,
         });
+        console.log("Transfer context:", transferContext);
 
         // Generate transfer content
         const content = await generateObject({
@@ -92,6 +93,7 @@ export default {
             context: transferContext,
             modelClass: ModelClass.MEDIUM,
         });
+        console.log("Transfer content:", content);
 
         elizaLogger.debug("Transfer content:", content);
 

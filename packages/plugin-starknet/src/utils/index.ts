@@ -60,6 +60,7 @@ export interface TransferContent extends Content {
 export function isTransferContent(
     content: TransferContent
 ): content is TransferContent {
+    console.log("isTransferContent", content);
     // Validate types
     const validTypes =
         typeof content.tokenAddress === "string" &&
@@ -77,6 +78,33 @@ export function isTransferContent(
         content.recipient.startsWith("0x") &&
         content.recipient.length === 66;
 
+    return validAddresses;
+}
+
+export interface NFTTransferContent extends Content {
+    nftContractAddress: string;
+    recipient: string;
+}
+
+export function isNFTTransferContent(
+    content: NFTTransferContent
+): content is NFTTransferContent {
+    // Validate types
+    const validTypes =
+        typeof content.nftContractAddress === "string" &&
+        typeof content.recipient === "string";
+    console.log("validTypes", validTypes);
+    if (!validTypes) {
+        return false;
+    }
+
+    // Validate addresses (must be 32-bytes long with 0x prefix)
+    const validAddresses =
+        content.nftContractAddress.startsWith("0x") &&
+        content.nftContractAddress.length === 66 &&
+        content.recipient.startsWith("0x") &&
+        content.recipient.length === 66;
+    console.log("validAddresses", validAddresses);
     return validAddresses;
 }
 
