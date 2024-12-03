@@ -13,25 +13,42 @@ import {
 import { getStarknetAccount, isNFTTransferContent } from "../utils";
 import { validateStarknetConfig } from "../enviroment";
 import { ERC721Token } from "../utils/ERC721Token";
+import { NFTAirdropManager } from "../providers/nftAirdropProvider";
 
 const nftTransferTemplate = `Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined.
 
 These are known addresses and contract details. If the user mentions them, use these:
 - zKube: 0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1
 
-Example response:
+Example response for single recipient:
 \`\`\`json
 {
   "nftContractAddress": "0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1",
-  "recipient": "0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
+  "recipients": ["0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"]
+}
+\`\`\`
+
+Example response for multiple recipients:
+\`\`\`json
+{
+  "nftContractAddress": "0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1",
+  "recipients": [
+    "0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
+    "0x5555567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"
+  ]
 }
 \`\`\`
 
 {{recentMessages}}
 
 Given the recent messages, extract the following information about the requested NFT transfer:
-- NFT contract address
-- Recipient wallet address
+- NFT contract address (if collection name is provided, use the corresponding address from known addresses)
+- Recipient wallet address(es)
+
+Notes:
+- If multiple recipient addresses are provided, include them all in the recipients array
+- Token IDs will be randomly selected from available tokens in the collection
+- If only one collection exists in the known addresses list, use it automatically without asking
 
 Respond with a JSON markdown block containing only the extracted values.`;
 
@@ -49,7 +66,7 @@ export default {
         return true;
     },
     description:
-        "MUST use this action if the user requests to send an NFT or transfer an ERC721 token. The request might vary, but it will always involve transferring an NFT.",
+        "MUST use this action if the user requests to send/transfer/distribute/airdrop an NFT (ERC721 token). No need for the user to explicitly specify a token ID.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -96,6 +113,28 @@ export default {
         }
 
         try {
+            const nftManager = new NFTAirdropManager(
+                runtime.databaseAdapter.db
+            );
+
+            // Check if recipient has already received an NFT
+            const hasReceived = await nftManager.hasReceivedAirdrop(
+                content.recipient
+            );
+            if (hasReceived) {
+                const status = await nftManager.formatAirdropStatus(
+                    runtime,
+                    content.recipient
+                );
+                if (callback) {
+                    callback({
+                        text: status,
+                        content: { error: "Recipient already received NFT" },
+                    });
+                }
+                return false;
+            }
+
             const account = getStarknetAccount(runtime);
             const erc721Token = new ERC721Token(
                 content.nftContractAddress,
@@ -124,6 +163,15 @@ export default {
             );
 
             const tx = await account.execute(transferCall);
+
+            await nftManager.recordAirdrop({
+                recipientAddress: content.recipient,
+                nftContractAddress: content.nftContractAddress,
+                tokenId: nftId.toString(),
+                transactionHash: tx.transaction_hash,
+                roomId: message.roomId,
+                agentId: runtime.agentId,
+            });
 
             elizaLogger.success(
                 "NFT transfer completed successfully! tx: " +

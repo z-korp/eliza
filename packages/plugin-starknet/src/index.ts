@@ -2,7 +2,9 @@ import { Plugin } from "@ai16z/eliza";
 import { executeSwap } from "./actions/swap";
 import transfer from "./actions/transfer";
 import { deployToken } from "./actions/unruggable";
-import nft from "./actions/nft";
+import nftAirdrop from "./actions/nftAirdrop";
+import { nftAirdropProvider } from "./providers/nftAirdropProvider";
+
 export const PROVIDER_CONFIG = {
     AVNU_API: "https://starknet.impulse.avnu.fi/v1",
     MAX_RETRIES: 3,
@@ -21,9 +23,9 @@ export const PROVIDER_CONFIG = {
 export const starknetPlugin: Plugin = {
     name: "starknet",
     description: "Starknet Plugin for Eliza",
-    actions: [transfer, executeSwap, deployToken, nft],
+    actions: [transfer, executeSwap, deployToken, nftAirdrop],
     evaluators: [],
-    providers: [],
+    providers: [nftAirdropProvider],
 };
 
 export default starknetPlugin;
