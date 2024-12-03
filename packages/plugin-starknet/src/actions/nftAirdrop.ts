@@ -11,9 +11,9 @@ import {
     elizaLogger,
 } from "@ai16z/eliza";
 import { getStarknetAccount, isNFTTransferContent } from "../utils";
-import { validateStarknetConfig } from "../enviroment";
 import { ERC721Token } from "../utils/ERC721Token";
 import { NFTAirdropManager } from "../providers/nftAirdropProvider";
+import { validateStarknetConfig } from "../environment";
 
 const nftTransferTemplate = `Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined.
 

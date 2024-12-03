@@ -370,6 +370,9 @@ export function createAgent(
                 ? confluxPlugin
                 : null,
             nodePlugin,
+            getSecret(character, "STARKNET_PRIVATE_KEY")
+                ? starknetPlugin
+                : null,
             getSecret(character, "SOLANA_PUBLIC_KEY") ||
             (getSecret(character, "WALLET_PUBLIC_KEY") &&
                 !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
