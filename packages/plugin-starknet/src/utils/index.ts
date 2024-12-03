@@ -1,23 +1,6 @@
-import { Content, IAgentRuntime } from "@ai16z/eliza";
+import { Content, elizaLogger, IAgentRuntime } from "@ai16z/eliza";
 import { Fraction, Percent } from "@uniswap/sdk-core";
-
 import { Account, Contract, RpcProvider } from "starknet";
-
-export const validateSettings = (runtime: IAgentRuntime) => {
-    const requiredSettings = [
-        "STARKNET_ADDRESS",
-        "STARKNET_PRIVATE_KEY",
-        "STARKNET_RPC_URL",
-    ];
-
-    for (const setting of requiredSettings) {
-        if (!runtime.getSetting(setting)) {
-            return false;
-        }
-    }
-
-    return true;
-};
 
 export const getTokenBalance = async (
     runtime: IAgentRuntime,
@@ -146,3 +129,52 @@ export const formatPercentage = (percentage: Percent) => {
 
     return `${exact ? "" : "~"}${formatedPercentage}%`;
 };
+
+export type RetryConfig = {
+    maxRetries?: number;
+    delay?: number;
+    maxDelay?: number;
+    backoff?: (retryCount: number, delay: number, maxDelay: number) => number;
+};
+
+export async function fetchWithRetry<T>(
+    url: string,
+    options?: RequestInit,
+    config: RetryConfig = {}
+): Promise<T> {
+    const {
+        maxRetries = 3,
+        delay = 1000,
+        maxDelay = 10000,
+        backoff = (retryCount, baseDelay, maxDelay) =>
+            Math.min(baseDelay * Math.pow(2, retryCount), maxDelay),
+    } = config;
+
+    let lastError: Error | null = null;
+
+    for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
+        try {
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                throw new Error(
+                    `Coingecko API HTTP status: ${response.status}`
+                );
+            }
+
+            return await response.json();
+        } catch (error) {
+            elizaLogger.debug(`Error fetching ${url}:`, error);
+            lastError = error as Error;
+
+            if (retryCount === maxRetries) break;
+
+            await new Promise((resolve) =>
+                setTimeout(resolve, backoff(retryCount, delay, maxDelay))
+            );
+            elizaLogger.debug(`Retry #${retryCount + 1} to fetch ${url}...`);
+        }
+    }
+
+    throw lastError;
+}

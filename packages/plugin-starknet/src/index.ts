@@ -4,6 +4,7 @@ import transfer from "./actions/transfer";
 import { deployToken } from "./actions/unruggable";
 import nftAirdrop from "./actions/nftAirdrop";
 import { nftAirdropProvider } from "./providers/nftAirdropProvider";
+import transferSubdomain from "./actions/subdomain";
 
 export const PROVIDER_CONFIG = {
     AVNU_API: "https://starknet.impulse.avnu.fi/v1",
@@ -23,7 +24,13 @@ export const PROVIDER_CONFIG = {
 export const starknetPlugin: Plugin = {
     name: "starknet",
     description: "Starknet Plugin for Eliza",
-    actions: [transfer, executeSwap, deployToken, nftAirdrop],
+    actions: [
+        transfer,
+        executeSwap,
+        deployToken,
+        transferSubdomain,
+        nftAirdrop,
+    ],
     evaluators: [],
     providers: [nftAirdropProvider],
 };
