@@ -11,6 +11,7 @@
         "@uniswap/sdk-core": "6.0.0",
         "@unruggable_starknet/core": "0.1.0",
         "starknet": "6.18.0",
+        "node-cache": "5.1.2",
         "tsup": "8.3.5",
         "vitest": "2.1.5"
     },

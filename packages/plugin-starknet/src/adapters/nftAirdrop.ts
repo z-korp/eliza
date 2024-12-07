@@ -21,7 +21,6 @@ export class NFTAirdropDatabase {
     }
 
     private initializeSchema() {
-        console.log("qqqqqqqqq CREATE TABLE IF NOT EXISTS nft_airdrops");
         // Create tables and indexes if they don't exist
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS nft_airdrops (
@@ -48,8 +47,8 @@ export class NFTAirdropDatabase {
     hasReceivedAirdrop(recipientAddress: string): boolean {
         try {
             const sql = `
-                SELECT COUNT(*) as count 
-                FROM nft_airdrops 
+                SELECT COUNT(*) as count
+                FROM nft_airdrops
                 WHERE recipient_address = ?
             `;
             const result = this.db.prepare(sql).get(recipientAddress) as {
@@ -172,10 +171,10 @@ export class NFTAirdropDatabase {
     }): { totalAirdrops: number; uniqueRecipients: number } {
         try {
             let sql = `
-                SELECT 
+                SELECT
                     COUNT(*) as totalAirdrops,
                     COUNT(DISTINCT recipient_address) as uniqueRecipients
-                FROM nft_airdrops 
+                FROM nft_airdrops
                 WHERE 1=1
             `;
             const queryParams: any[] = [];

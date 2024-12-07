@@ -3,13 +3,6 @@ import { NFTAirdropDatabase } from "../adapters/nftAirdrop";
 import { Database } from "better-sqlite3";
 import NodeCache from "node-cache";
 
-// Configuration for the provider
-const PROVIDER_CONFIG = {
-    MAX_RETRIES: 3,
-    RETRY_DELAY: 2000,
-    CACHE_TTL: 300, // 5 minutes
-};
-
 /**
  * Manages NFT airdrops using a database and cache layer.
  */
@@ -19,7 +12,7 @@ export class NFTAirdropManager {
 
     constructor(db: Database) {
         this.db = new NFTAirdropDatabase(db);
-        this.cache = new NodeCache({ stdTTL: PROVIDER_CONFIG.CACHE_TTL });
+        this.cache = new NodeCache({ stdTTL: 300 }); // 5 minutes cache
     }
 
     async recordAirdrop(params: {
@@ -146,6 +139,10 @@ const nftAirdropProvider: Provider = {
         _state?: State
     ): Promise<string> => {
         try {
+            console.log(
+                "Checking NFT airdrop status..." + message.content?.recipient
+            );
+            console.log("Checking NFT airdrop status..." + message.content);
             const address = message.content?.recipient;
 
             if (!address || typeof address !== "string") {

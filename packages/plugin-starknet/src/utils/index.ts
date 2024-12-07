@@ -91,6 +91,36 @@ export function isNFTTransferContent(
     return validAddresses;
 }
 
+export function getTransferError(content: any): string {
+    if (!content) {
+        return "Error: Missing transfer details";
+    }
+
+    if (!content.nftContractAddress) {
+        return "Error: Contract address required";
+    }
+
+    if (!content.recipient) {
+        return "Error: Recipient address required";
+    }
+
+    if (
+        !content.nftContractAddress.startsWith("0x") ||
+        content.nftContractAddress.length !== 66
+    ) {
+        return "Error: Invalid contract address";
+    }
+
+    if (
+        !content.recipient.startsWith("0x") ||
+        content.recipient.length !== 66
+    ) {
+        return "Error: Invalid recipient address";
+    }
+
+    return "";
+}
+
 export const getPercent = (amount: string | number, decimals: number) => {
     return new Percent(amount, decimals);
 };

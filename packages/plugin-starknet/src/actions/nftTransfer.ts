@@ -10,7 +10,11 @@ import {
     generateObject,
     elizaLogger,
 } from "@ai16z/eliza";
-import { getStarknetAccount, isNFTTransferContent } from "../utils";
+import {
+    getStarknetAccount,
+    getTransferError,
+    isNFTTransferContent,
+} from "../utils";
 import { ERC721Token } from "../utils/ERC721Token";
 import { NFTAirdropManager } from "../providers/nftAirdropProvider";
 import { validateStarknetConfig } from "../environment";
@@ -20,22 +24,11 @@ const nftTransferTemplate = `Respond with a JSON markdown block containing only 
 These are known addresses and contract details. If the user mentions them, use these:
 - zKube: 0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1
 
-Example response for single recipient:
+Example:
 \`\`\`json
 {
   "nftContractAddress": "0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1",
-  "recipients": ["0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"]
-}
-\`\`\`
-
-Example response for multiple recipients:
-\`\`\`json
-{
-  "nftContractAddress": "0x00b1e866b32c772a26c5d42e8ebb50e08378bac49b01c0eea27a8bee1dd472a1",
-  "recipients": [
-    "0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
-    "0x5555567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"
-  ]
+  "recipient": "0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"
 }
 \`\`\`
 
@@ -43,10 +36,9 @@ Example response for multiple recipients:
 
 Given the recent messages, extract the following information about the requested NFT transfer:
 - NFT contract address (if collection name is provided, use the corresponding address from known addresses)
-- Recipient wallet address(es)
+- Recipient wallet address
 
 Notes:
-- If multiple recipient addresses are provided, include them all in the recipients array
 - Token IDs will be randomly selected from available tokens in the collection
 - If only one collection exists in the known addresses list, use it automatically without asking
 
@@ -55,18 +47,20 @@ Respond with a JSON markdown block containing only the extracted values.`;
 export default {
     name: "SEND_NFT",
     similes: [
-        "TRANSFER_NFT_ON_STARKNET",
-        "SEND_NFT_ON_STARKNET",
-        "DISTRIBUTE_NFT_ON_STARKNET",
-        "TRANSFER_ERC721_ON_STARKNET",
-        "SEND_ERC721_ON_STARKNET",
+        "TRANSFER_NFT",
+        "DISTRIBUTE_NFT",
+        "AIRDROP_NFT",
+        "GIVE_NFT",
+        "SEND_ERC721",
+        "TRANSFER_ERC721",
+        "AIRDROP_ERC721",
     ],
-    validate: async (runtime: IAgentRuntime, message: Memory) => {
+    validate: async (runtime: IAgentRuntime, _: Memory) => {
         await validateStarknetConfig(runtime);
         return true;
     },
     description:
-        "MUST use this action if the user requests to send/transfer/distribute/airdrop an NFT (ERC721 token). No need for the user to explicitly specify a token ID.",
+        "MUST use this action for all NFT transfers on Starknet. Execute immediately when user requests to send/transfer/airdrop NFTs - no confirmation needed. Token ID is auto-selected. Don't ask for extra details if all required information is present.",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -102,11 +96,16 @@ export default {
 
         // Validate transfer content
         if (!isNFTTransferContent(content)) {
-            elizaLogger.error("Invalid content for SEND_NFT action.");
+            const errorMessage = getTransferError(content);
+            elizaLogger.error(
+                "Invalid content for SEND_NFT action:",
+                errorMessage
+            );
+
             if (callback) {
                 callback({
-                    text: "Not enough information to transfer the NFT. Please provide the NFT contract address and recipient.",
-                    content: { error: "Invalid transfer content" },
+                    text: errorMessage,
+                    content: { error: errorMessage },
                 });
             }
             return false;
@@ -121,6 +120,7 @@ export default {
             const hasReceived = await nftManager.hasReceivedAirdrop(
                 content.recipient
             );
+
             if (hasReceived) {
                 const status = await nftManager.formatAirdropStatus(
                     runtime,
@@ -204,13 +204,13 @@ export default {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Give a zKube nft to 0x1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF",
+                    text: "Could you airdrop an NFT to my friend at address 0xABC123...",
                 },
             },
             {
                 user: "{{agent}}",
                 content: {
-                    text: "I'll transfer one nft to that address right away. Let me process that for you.",
+                    text: "Sure, I'll airdrop an NFT to that address right away.",
                 },
             },
         ],
@@ -218,13 +218,27 @@ export default {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Transfer one of your zkube nft to 0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
+                    text: "Please send an NFT to this wallet: 0xDEF456...",
                 },
             },
             {
                 user: "{{agent}}",
                 content: {
-                    text: "Executing transfer of one zkube NFT to the specified address. One moment please.",
+                    text: "Absolutely, initiating the NFT transfer now.",
+                },
+            },
+        ],
+        [
+            {
+                user: "{{user1}}",
+                content: {
+                    text: "I want to gift an NFT to someone. Can you help?",
+                },
+            },
+            {
+                user: "{{agent}}",
+                content: {
+                    text: "Yes, I can help you send an NFT. Please provide the recipient's wallet address.",
                 },
             },
         ],

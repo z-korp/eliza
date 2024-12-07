@@ -42,7 +42,6 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 import { fileURLToPath } from "url";
-import { character } from "./character.ts";
 import type { DirectClient } from "@ai16z/client-direct";
 import starknetPlugin from "@ai16z/plugin-starknet";
 import yargs from "yargs";
