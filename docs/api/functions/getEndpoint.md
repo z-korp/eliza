@@ -14,4 +14,4 @@
 
 ## Defined in
 
-[packages/core/src/models.ts:385](https://github.com/Matth26/eliza/blob/main/packages/core/src/models.ts#L385)
+[packages/core/src/models.ts:385](https://github.com/z-korp/eliza/blob/main/packages/core/src/models.ts#L385)

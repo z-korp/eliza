@@ -20,4 +20,4 @@ A string that concatenates the names of all evaluators, each enclosed in single 
 
 ## Defined in
 
-[packages/core/src/evaluators.ts:30](https://github.com/Matth26/eliza/blob/main/packages/core/src/evaluators.ts#L30)
+[packages/core/src/evaluators.ts:30](https://github.com/z-korp/eliza/blob/main/packages/core/src/evaluators.ts#L30)

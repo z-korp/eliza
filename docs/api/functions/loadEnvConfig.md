@@ -19,4 +19,4 @@ If no .env file is found in Node.js environment
 
 ## Defined in
 
-[packages/core/src/settings.ts:79](https://github.com/Matth26/eliza/blob/main/packages/core/src/settings.ts#L79)
+[packages/core/src/settings.ts:79](https://github.com/z-korp/eliza/blob/main/packages/core/src/settings.ts#L79)

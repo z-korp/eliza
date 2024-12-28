@@ -20,4 +20,4 @@ A string that concatenates the name and description of each evaluator, separated
 
 ## Defined in
 
-[packages/core/src/evaluators.ts:41](https://github.com/Matth26/eliza/blob/main/packages/core/src/evaluators.ts#L41)
+[packages/core/src/evaluators.ts:41](https://github.com/z-korp/eliza/blob/main/packages/core/src/evaluators.ts#L41)

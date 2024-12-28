@@ -6,4 +6,4 @@
 
 ## Defined in
 
-[packages/core/src/defaultCharacter.ts:3](https://github.com/Matth26/eliza/blob/main/packages/core/src/defaultCharacter.ts#L3)
+[packages/core/src/defaultCharacter.ts:3](https://github.com/z-korp/eliza/blob/main/packages/core/src/defaultCharacter.ts#L3)

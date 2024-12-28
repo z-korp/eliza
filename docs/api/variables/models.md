@@ -6,4 +6,4 @@
 
 ## Defined in
 
-[packages/core/src/models.ts:4](https://github.com/Matth26/eliza/blob/main/packages/core/src/models.ts#L4)
+[packages/core/src/models.ts:4](https://github.com/z-korp/eliza/blob/main/packages/core/src/models.ts#L4)

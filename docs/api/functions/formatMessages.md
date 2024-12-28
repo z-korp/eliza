@@ -22,4 +22,4 @@ string
 
 ## Defined in
 
-[packages/core/src/messages.ts:60](https://github.com/Matth26/eliza/blob/main/packages/core/src/messages.ts#L60)
+[packages/core/src/messages.ts:60](https://github.com/z-korp/eliza/blob/main/packages/core/src/messages.ts#L60)
