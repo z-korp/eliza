@@ -9,7 +9,7 @@ import {
     composeContext,
     generateObject,
     elizaLogger,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     getStarknetAccount,
     getTransferError,
